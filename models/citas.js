@@ -18,7 +18,12 @@ telefono:{
 
 fecha:{
     type:Date,
-    default:[true,'El campo fecha es requerido']
+    required:[true,'El campo fecha es requerido']
+},
+
+hora:{
+    type:Date,
+    required:[true,'El campo hora es requerido']
 },
 
 especialidad:{

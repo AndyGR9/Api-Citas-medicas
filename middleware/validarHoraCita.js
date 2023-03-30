@@ -1,50 +1,49 @@
+const { request, response } = require("express");
+const citas = require("../models/citas");
 
+const moment = require('moment/moment');
 
-function validarCita(fechaCita, duracionCita, callback) {
-    
-    // Obtenemos la colección de citas
-    const citas = db.collection('citas');
-  
-    // Validamos que la hora de la cita esté dentro del intervalo de 30 minutos
-    if (fechaCita.getMinutes() % 30 !== 0) {
-      return callback(new Error('La hora de la cita debe ser un múltiplo de 30 minutos.'));
-    }
-  
-    // Validamos que la hora de la cita esté dentro del rango de tiempo permitido
-    const horaInicio = new Date(fechaCita);
-    horaInicio.setHours(8, 0, 0, 0);
-  
-    const horaFin = new Date(fechaCita);
-    horaFin.setHours(17, 0, 0, 0);
-  
-    if (fechaCita < horaInicio || fechaCita > horaFin) {
-      return callback(new Error('La hora de la cita debe estar dentro del horario permitido (8:00 am - 5:00 pm).'));
-    }
-  
-    // Calculamos la hora de fin de la cita sumando la duración a la hora de inicio
-    const horaFinCita = new Date(fechaCita.getTime() + (duracionCita * 60000));
-  
-    // Buscamos si ya existe una cita programada en el mismo intervalo de tiempo
-    citas.findOne({
-      $or: [
-        {
-          fecha: { $gte: fechaCita, $lt: horaFinCita }
-        },
-        {
-          fechaFin: { $gt: fechaCita, $lte: horaFinCita }
-        }
-      ]
-    }, function (error, resultado) {
-      if (error) {
-        return callback(error);
-      }
-  
-      if (resultado) {
-        return callback(new Error('Ya existe una cita programada en este intervalo de tiempo.'));
-      }
-  
-      // Si no hay conflictos, ejecutamos el callback sin error
-      callback(null);
+// Middleware para validar citas
+const validarCita = (req = request, res = response, next) => {
+  // Obtener la fecha y hora de la cita
+
+  console.log("Hora de la cita"+ req.body.hora)
+  const fechaCita = moment(req.body.fecha, "DD/MM/YYYY");
+  const horaCita = moment(req.body.hora, 'HH:mm')
+
+  console.log("Hora de la cita: "+ horaCita)
+
+  // Validar que la hora de la cita esté dentro del horario permitido (8:00 am a 5:00 pm)
+  if (horaCita.isBefore(moment('08:00', 'HH:mm')) || horaCita.isAfter(moment('17:00', 'HH:mm'))) {
+    return res.status(400).json({ 
+      error: 'La hora de la cita debe estar dentro del horario permitido (8:00 am a 5:00 pm)' 
     });
   }
-  
+
+  // Validar que la hora de la cita sea un múltiplo de 30 minutos
+  if (horaCita.minute() % 30 !== 0) {
+    return res.status(400).json({
+       error: 'La hora de la cita debe ser un múltiplo de 30 minutos' 
+      });
+  }   
+
+  // Validar que no haya otra cita reservada en la misma fecha y hora
+  citas.findOne({ fecha: fechaCita.toISOString(), hora: horaCita })
+    .then((citaExistente) => {
+        if (citaExistente) {
+            return res.status(409).json({ error: 'Ya hay otra cita reservada en la misma fecha y hora' });
+        } else {
+            // No hay citas existentes, continua con el proceso de reserva
+            next()
+        }
+    })
+    .catch((err) => {
+      console.log(err)
+        return res.status(500).json({ error: 'Error al buscar citas en la base de datos'+err });
+    });
+
+
+};
+
+module.exports = {validarCita}
+
