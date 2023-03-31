@@ -1,6 +1,6 @@
 const { request, response } = require('express');
 const Citas = require('../models/citas');
-const Logins = require('../models/login');
+const Medico = require('../models/medico');
 var bcrypt = require('bcryptjs');
 const moment = require('moment/moment');
 
@@ -41,14 +41,23 @@ const citasPOST = async (req = request, res = response) => {
 
         const { nombre, apellido, telefono, fecha, hora, especialidad, medico } = req.body
 
-
         const cita = new Citas({ nombre, apellido, telefono, fecha, hora, especialidad, medico });
+
+        
+        const medicoAsig = await Medico.findOne({nombre : medico})
+
+        if (!medicoAsig) {
+            return res.status(404).json({ error: 'No se encontró el medico' });
+        }
 
         cita.fecha = moment(fecha, "DD/MM/YYYY").toISOString()
 
         cita.hora = moment(hora, "HH:mm").toISOString()
 
+        
+        medicoAsig.citasActivas.push({ fecha: cita.fecha, hora: cita.hora });
 
+        await medicoAsig.save(); 
         await cita.save();
 
         res.json(
@@ -57,7 +66,7 @@ const citasPOST = async (req = request, res = response) => {
                 "msg": "Mensaje desde el metodo POST",
                 cita
             }
-        ); 
+        );
 
     }
     catch (err) {

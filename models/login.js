@@ -22,11 +22,6 @@ rol:{
     type:String
 },
 
-// disponibilidad:{
-//     type:String,
-//     default:false
-// },
-
 });
 
 

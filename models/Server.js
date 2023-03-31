@@ -31,7 +31,6 @@ listen(){
 
 
 routes(){
-this.app.use(this.usersPath,require('../routes/users'));
 this.app.use(this.auth,require('../routes/auth'));
 this.app.use(this.cita,require('../routes/citas'));
 }

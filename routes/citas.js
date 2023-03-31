@@ -12,6 +12,6 @@ const { citasPOST
 
 
 
-router.post('/',validate_fields,validarCita,citasPOST); 
+router.post('/citas',validate_fields,validarCita,citasPOST); 
 
 module.exports=router;
