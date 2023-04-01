@@ -3,25 +3,19 @@ const Citas = require('../models/citas');
 const Medico = require('../models/medico');
 var bcrypt = require('bcryptjs');
 const moment = require('moment/moment');
+const citas = require('../models/citas');
 
 
-const usersGET = async (req = request, res = response) => {
+const citasGET = async (req = request, res = response) => {
 
     try {
 
-        const rol = { "rol": "public", "google": true };
-
-
-        //const {limit}=req.query;
-        const users = await Usuario.find(rol);
-
-        // const {id}=req.params
-        // const {limit,page}=req.query;
+        const citasL = await citas.find();
 
         res.status(200).json(
             {
                 "msg": "Mensaje desde el metodo GET",
-                users
+                citasL
             }
         );
 
@@ -39,9 +33,11 @@ const citasPOST = async (req = request, res = response) => {
 
     try {
 
+        const Cita = await generarIdUnico();
+
         const { nombre, apellido, telefono, fecha, hora, especialidad, medico } = req.body
 
-        const cita = new Citas({ nombre, apellido, telefono, fecha, hora, especialidad, medico });
+        const cita = new Citas({idCita:Cita, nombre, apellido, telefono, fecha, hora, especialidad, medico });
 
         
         const medicoAsig = await Medico.findOne({nombre : medico})
@@ -55,7 +51,7 @@ const citasPOST = async (req = request, res = response) => {
         cita.hora = moment(hora, "HH:mm").toISOString()
 
         
-        medicoAsig.citasActivas.push({ fecha: cita.fecha, hora: cita.hora });
+        medicoAsig.citasActivas.push({idCita:Cita, fecha: cita.fecha, hora: cita.hora });
 
         await medicoAsig.save(); 
         await cita.save();
@@ -138,10 +134,28 @@ const usersDELETE = async (req = request, res = response) => {
     }
 }
 
+async function generarIdUnico() {
+    const Cita = String(Math.floor(Math.random() * 500) + 1);
+    console.log(typeof Cita);
 
-
+    try {
+      const resultado = await citas.findOne({ idCita: Cita });
+      if (resultado) {
+        // El número ya existe en la base de datos, se llama a la función de nuevo
+        return generarNumeroUnico();
+      } else {
+        // El número no existe en la base de datos, se retorna
+        
+        return Cita;
+      } 
+    } catch (error) { 
+      console.error(error);
+    }
+  }
+  
+ 
 module.exports = {
-    usersGET,
+    citasGET,
     citasPOST,
     usersPUT,
     usersDELETE

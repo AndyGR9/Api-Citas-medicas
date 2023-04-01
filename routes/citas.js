@@ -6,12 +6,13 @@ const { validarCita } = require('../middleware/validarHoraCita');
 const router=Router();
 
 
-const { citasPOST 
+const { citasPOST, citasGET 
 }=require('../controllers/citas');
 
 
 
+router.post('/',validate_fields,validarCita,citasPOST); 
 
-router.post('/citas',validate_fields,validarCita,citasPOST); 
+router.get('/',citasGET); 
 
 module.exports=router;

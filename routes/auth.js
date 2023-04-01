@@ -7,7 +7,10 @@ const { validarJWT } = require("../middleware/validateJWT");
 
 const router=Router();
 
-router.post('/login',login); 
+router.post('/login',[
+check('email','Este email no es valido').isEmail(),
+check('password','El nombre es obligatorio').not().isEmpty()],
+login); 
 
 router.post('/register',[
     check('email','Este email no es valido').isEmail(),

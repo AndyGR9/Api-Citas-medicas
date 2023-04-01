@@ -17,6 +17,10 @@ email:{
 },
 
 citasActivas:[{
+  idCita: {
+    type: String,
+    required: true
+  },
     fecha: {
       type: Date,
       required: true
