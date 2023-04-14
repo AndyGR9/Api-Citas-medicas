@@ -26,7 +26,7 @@ const validarCita = async (req = request, res = response, next) => {
       });
   }   
 
-  // Validar que no haya otra cita reservada en la misma fecha y hora
+  // Validar que no haya otra cita reservada en la misma fecha, hora y medico
   citas.findOne({ fecha: fechaCita.toISOString(), hora: horaCita, medico: medicoAsig.nombre })
     .then((citaExistente) => {
         if (citaExistente) {

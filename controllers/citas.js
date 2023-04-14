@@ -29,18 +29,66 @@ const citasGET = async (req = request, res = response) => {
     }
 }
 
+
+const medicoGETAll = async (req = request, res = response) => {
+
+    try {
+
+        const medico = await Medico.find();
+
+        res.status(200).json(
+            {
+                "msg": "Mensaje desde el metodo GET",
+                medico
+            }
+        );
+
+
+
+
+    }
+    catch (err) {
+        console.log(err);
+        throw new Error('Error en el metodo GET');
+    }
+}
+
+const medicoGET = async (req = request, res = response) => {
+
+    try {
+
+        const {cedula} = req.body
+        const medico = await Medico.findOne({ cedula: cedula })
+
+        res.status(200).json(
+            {
+                "msg": "Mensaje desde el metodo GET",
+                medico
+            }
+        );
+
+
+
+
+    }
+    catch (err) {
+        console.log(err);
+        throw new Error('Error en el metodo GET');
+    }
+}
+
 const citasPOST = async (req = request, res = response) => {
 
     try {
 
         const Cita = await generarIdUnico();
 
-        const { nombre, apellido, telefono, fecha, hora, especialidad, medico } = req.body
+        const { nombre, apellido, telefono, fecha, hora, especialidad, medico, cedula } = req.body
 
-        const cita = new Citas({idCita:Cita, nombre, apellido, telefono, fecha, hora, especialidad, medico });
+        const cita = new Citas({ idCita: Cita, nombre, apellido, telefono, fecha, hora, especialidad, medico });
 
-        
-        const medicoAsig = await Medico.findOne({nombre : medico})
+
+        const medicoAsig = await Medico.findOne({ cedula: cedula })
 
         if (!medicoAsig) {
             return res.status(404).json({ error: 'No se encontró el medico' });
@@ -50,10 +98,10 @@ const citasPOST = async (req = request, res = response) => {
 
         cita.hora = moment(hora, "HH:mm").toISOString()
 
-        
-        medicoAsig.citasActivas.push({idCita:Cita, fecha: cita.fecha, hora: cita.hora });
 
-        await medicoAsig.save(); 
+        medicoAsig.citasActivas.push({ idCita: Cita, fecha: cita.fecha, hora: cita.hora });
+
+        await medicoAsig.save();
         await cita.save();
 
         res.json(
@@ -71,7 +119,7 @@ const citasPOST = async (req = request, res = response) => {
     }
 }
 
-const usersPUT = async (req = request, res = response) => {
+const citasPUT = async (req = request, res = response) => {
 
     try {
         const { id } = req.params;
@@ -101,29 +149,20 @@ const usersPUT = async (req = request, res = response) => {
 }
 
 
-const usersDELETE = async (req = request, res = response) => {
+const citasDELETE = async (req = request, res = response) => {
 
     try {
         const { id } = req.params;
 
-        let user = "Usuario no existe"
+        const eliminado = await Citas.findOneAndDelete({idCita: id})
 
-        const validar = await Usuario.findById(id)
+        const citaMedico = await Medico.findOneAndDelete()
 
-        const { payload } = jwt.decode(token, { complete: true });
-        user = await Usuario.findById(payload.id)
-
-        if (validar.estado == "true") {
-            user = await Usuario.updateOne({ _id: id }, { $set: { estado: "false" } });
-            console.log("bien")
-        } else {
-            console.log("mal")
-        }
         res.json(
             {
                 ok: 200,
                 "msg": "Mensaje desde el metodo DELETE",
-                user
+                eliminado
             }
         );
 
@@ -136,27 +175,27 @@ const usersDELETE = async (req = request, res = response) => {
 
 async function generarIdUnico() {
     const Cita = String(Math.floor(Math.random() * 500) + 1);
-    console.log(typeof Cita);
 
     try {
-      const resultado = await citas.findOne({ idCita: Cita });
-      if (resultado) {
-        // El número ya existe en la base de datos, se llama a la función de nuevo
-        return generarNumeroUnico();
-      } else {
-        // El número no existe en la base de datos, se retorna
-        
-        return Cita;
-      } 
-    } catch (error) { 
-      console.error(error);
+        const resultado = await citas.findOne({ idCita: Cita });
+        if (resultado) {
+            // El número ya existe en la base de datos, se llama a la función de nuevo
+            return generarNumeroUnico();
+        } else {
+            // El número no existe en la base de datos, se retorna
+            return Cita;
+        }
+    } catch (error) {
+        console.error(error);
     }
-  }
-  
- 
+}
+
+
 module.exports = {
     citasGET,
+    medicoGET,
+    medicoGETAll,
     citasPOST,
-    usersPUT,
-    usersDELETE
+    citasPUT,
+    citasDELETE
 }

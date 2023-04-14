@@ -19,7 +19,8 @@ google:{
 },
 
 rol:{
-    type:String
+    type:String,
+    default:"Public"
 },
 
 });

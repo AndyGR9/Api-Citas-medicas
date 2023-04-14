@@ -11,6 +11,11 @@ apellido:{
     required:[true,'El campo apellido es requerido']
 },
 
+cedula: {
+  type: String,
+  required: [true, 'El campo cedula es requerido']
+},
+
 email:{
     type:String,
     required:[true,'El campo email es requerido']

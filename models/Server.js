@@ -8,10 +8,10 @@ class Server{
 constructor(){
    this.app=express();
    this.port=process.env.PORT;
-   this.usersPath='/api/users'
    this.auth='/api/auth'
    this.cita='/api/citas'
-
+   this.paciente='/api/paciente'
+   this.consultas='/api/consultas'
 
    //invocamos nuestros metodos
    this.middleWares();
@@ -33,6 +33,8 @@ listen(){
 routes(){
 this.app.use(this.auth,require('../routes/auth'));
 this.app.use(this.cita,require('../routes/citas'));
+this.app.use(this.paciente,require('../routes/pacientes'));
+this.app.use(this.consultas,require('../routes/consultas'));
 }
 
 middleWares(){
