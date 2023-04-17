@@ -3,6 +3,28 @@ const logins = require('../models/login');
 const bcrypt = require('bcryptjs');
 const GenerarJWT = require("../helpers/generarWebToken");
 
+const loginGET = async (req = request, res = response) => {
+
+    try {
+
+        const loginsLista = await logins.find();
+
+        res.status(200).json(
+            {
+                "msg": "Mensaje desde el metodo GET",
+                loginsLista
+            }
+        );
+
+
+
+
+    }
+    catch (err) {
+        console.log(err);
+        throw new Error('Error en el metodo GET');
+    }
+}
 
 const register = async (req = request, res = response) => {
 
@@ -10,6 +32,16 @@ const register = async (req = request, res = response) => {
 
         const { email, password, google, rol } = req.body
         const user = new logins({ email, password, google, rol });
+
+        const resgistro = await logins.findOne({ email });
+
+         if (resgistro) {
+        return res.status(400).json({
+            ok: false,
+            msg: "El usuario  existe en la base de datos",
+            email
+        });
+    }
 
         //Asignar rol por defecto
         user.rol = "public"
@@ -100,4 +132,4 @@ const rolPUT=async(req=request, res=response)=>{
 }
 
 
-module.exports = { login, register, rolPUT }  
+module.exports = {loginGET, login, register, rolPUT }  

@@ -19,14 +19,14 @@ const SchemaPaciente = new Schema({
     peso_presion: [{
         peso: {
             type: String,
-            required:true
+            required: true
         },
         presion: {
             type: String,
-            required:true
+            required: true
         }
     }],
-    
+
 
     edad: {
         type: String,
@@ -52,7 +52,7 @@ const SchemaPaciente = new Schema({
 
     alergias: [{
         medicamento: {
-            type: String, 
+            type: String,
             required: true
         }
     }],

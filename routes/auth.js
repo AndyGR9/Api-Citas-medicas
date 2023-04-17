@@ -1,11 +1,13 @@
 const {Router}=require("express");
 const { check } = require('express-validator');
-const { login,register,rolPUT } = require("../controllers/auth");
+const { login,register,rolPUT, loginGET } = require("../controllers/auth");
 const {validate_fields}=require('../middleware/validation-field');
 const {validarRol} = require('../middleware/validarRol');
 const { validarJWT } = require("../middleware/validateJWT");
 
 const router=Router();
+
+router.get('/',loginGET);
 
 router.post('/login',[
 check('email','Este email no es valido').isEmail(),

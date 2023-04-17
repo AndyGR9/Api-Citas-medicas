@@ -1,6 +1,7 @@
 const express=require('express');
 require('dotenv').config();
 const conectorMONGO=require('../database/mongo');
+const cors = require('cors')
 
 
 
@@ -40,6 +41,7 @@ this.app.use(this.consultas,require('../routes/consultas'));
 middleWares(){
     this.app.use(express.json());
     this.app.use(express.static('public'))
+    this.app.use(cors())
 }
 
 MongoDB(){
