@@ -48,8 +48,15 @@ const SchemaConsulta = new Schema({
         medicamentos: {
             type: String,
             required: false
+        }
+    }],
+
+    examenes: [{
+        tipo: {
+            type: String,
+            required: false
         },
-        examenes: {
+        caracteristica: {
             type: String,
             required: false
         }

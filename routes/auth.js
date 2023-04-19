@@ -2,7 +2,7 @@ const {Router}=require("express");
 const { check } = require('express-validator');
 const { login,register,rolPUT, loginGET } = require("../controllers/auth");
 const {validate_fields}=require('../middleware/validation-field');
-const {validarRol} = require('../middleware/validarRol');
+const {validarAdmin} = require('../middleware/validarRol');
 const { validarJWT } = require("../middleware/validateJWT");
 
 const router=Router();
@@ -11,7 +11,8 @@ router.get('/',loginGET);
 
 router.post('/login',[
 check('email','Este email no es valido').isEmail(),
-check('password','El nombre es obligatorio').not().isEmpty()],
+check('password','El nombre es obligatorio').not().isEmpty(),
+validate_fields],
 login); 
 
 router.post('/register',[
@@ -19,6 +20,6 @@ router.post('/register',[
     check('password','El nombre es obligatorio').not().isEmpty(),
     validate_fields],register); 
     
-router.put('/changeRol',validarJWT,validarRol,rolPUT);
+router.put('/changeRol',validarJWT,validarAdmin,rolPUT);
 
 module.exports=router; 

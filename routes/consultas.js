@@ -1,22 +1,48 @@
-const {Router}=require('express');
+const { Router } = require('express');
 const { check } = require('express-validator');
-const {validate_fields}=require('../middleware/validation-field');
+const { validate_fields } = require('../middleware/validation-field');
 
-const router=Router();
-
-
-const {detallesPOST, diagnosticoPOST, consultaGET, consultaGETAll }=require('../controllers/consultas');
+const router = Router();
 
 
-
-router.post('/detalles',validate_fields,detallesPOST); 
-
-router.post('/diagnostico',validate_fields,diagnosticoPOST);
-
-router.get('/',consultaGET);
-
-router.get('/lista',consultaGETAll);
+const { detallesPOST, diagnosticoPOST, consultaGET, consultaGETAll, examenesPOST } = require('../controllers/consultas');
+const { validarEnfermera, validarMedico } = require('../middleware/validarRol');
 
 
 
-module.exports=router;
+router.post('/detalles', [
+    check('cedula', 'La cedula es obligatoria').not().isEmpty(),
+    check('detallesPaciente', 'Los detalles del paciente son obligatorios').isArray(),
+    check('detallesPaciente.*.presion', 'La presion es obligatoria').notEmpty(),
+    check('detallesPaciente.*.peso', 'El peso  es obligatorio').notEmpty(),
+    check('detallesPaciente.*.altura', 'La altura es obligatoria').notEmpty(),
+    check('detallesPaciente.*.sintomas', 'Los sintomas son obligatorios').notEmpty(),
+    validate_fields], validarEnfermera, detallesPOST);
+
+router.post('/diagnostico', [
+    check('cedula', 'La cedula es obligatoria').notEmpty(),
+    check('id', 'El id de la consulta es obligatorio').notEmpty(),
+    check('diagnostico', 'El diagnostico es obligatorio').isArray(),
+    check('diagnostico.*.diagnostico', 'El diagnostico del paciente es obligatorio').notEmpty(),
+    check('diagnostico.*.medicamentos', 'Los medicamentos asignados al paciente son obligatorios').notEmpty(),
+    check('examenes', 'Los examenes son obligatorios').isArray(),
+    check('examenes.*.tipo', 'El tipo de examen asignado es obligatorio').notEmpty(),
+    validate_fields], validarMedico, diagnosticoPOST);
+
+router.post('/examenes', [
+    check('cedula', 'La cedula es obligatoria').notEmpty(),
+    check('id', 'El id de la consulta es obligatorio').notEmpty(),
+    check('examenes', 'Los examenes son obligatorios').isArray(),
+    check('examenes.*.tipo', 'El tipo de examen asignado es obligatorio').notEmpty(),
+    check('examenes.*.caracteristica', 'El la razón del examen es obligatoria').notEmpty(),
+    validate_fields], validarMedico, examenesPOST);
+
+router.get('/', [
+    check('cedula', 'La cedula es obligatoria').not().isEmpty(),
+    validate_fields], consultaGET);
+
+router.get('/lista', consultaGETAll);
+
+
+
+module.exports = router;

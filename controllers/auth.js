@@ -43,8 +43,6 @@ const register = async (req = request, res = response) => {
         });
     }
 
-        //Asignar rol por defecto
-        user.rol = "public"
 
         //Llave o numero de vueltas
         var salt = bcrypt.genSaltSync(10);
@@ -67,13 +65,14 @@ const register = async (req = request, res = response) => {
     }
     catch (err) {
         console.log(err);
-        throw new Error('Error en el metodo POST');
+        throw new Error('Error en el metodo Registro');
     }
 }
 
 const login = async (req = request, resp = response) => {
 
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
     //validar email
     const login = await logins.findOne({ email });
@@ -92,7 +91,7 @@ const login = async (req = request, resp = response) => {
     if (!passwordValid) {
         return resp.status(400).json({
             ok: false,
-            msg: "Password no existe en la base de datos",
+            msg: "Contraseña incorrecta",
             email,
             password
         });
@@ -108,6 +107,12 @@ const login = async (req = request, resp = response) => {
         password,
         token
     });
+    } catch (err) {
+        console.log(err);
+        throw new Error('Error en el metodo login');
+    }
+
+    
 }
 
 const rolPUT=async(req=request, res=response)=>{

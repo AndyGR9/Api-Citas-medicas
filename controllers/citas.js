@@ -1,16 +1,20 @@
 const { request, response } = require('express');
 const Citas = require('../models/citas');
 const Medico = require('../models/medico');
-var bcrypt = require('bcryptjs');
 const moment = require('moment/moment');
-const citas = require('../models/citas');
 
 
 const citasGET = async (req = request, res = response) => {
 
     try {
 
-        const citasL = await citas.find();
+        const citasL = await Citas.find();
+
+        let fech = moment(citasL.fecha)
+        console.log(fech.format("DD/MM/YYYY"))
+
+        let hor = moment(citasL.hora)
+        console.log(hor.format("HH:mm"))
 
         res.status(200).json(
             {
@@ -60,6 +64,10 @@ const medicoGET = async (req = request, res = response) => {
         const {cedula} = req.body
         const medico = await Medico.findOne({ cedula: cedula })
 
+        if (!medico) {
+            return res.status(404).json({ error: 'El medico selecionado no existe' });
+          }
+
         res.status(200).json(
             {
                 "msg": "Mensaje desde el metodo GET",
@@ -83,22 +91,19 @@ const citasPOST = async (req = request, res = response) => {
 
         const Cita = await generarIdUnico();
 
-        const { nombre, apellido, telefono, fecha, hora, especialidad, medico, cedula } = req.body
+        const { nombre, apellido, telefono, fecha, hora, especialidad, cedula } = req.body
 
-        const cita = new Citas({ idCita: Cita, nombre, apellido, telefono, fecha, hora, especialidad, medico });
+        const cita = new Citas({ idCita: Cita, nombre, apellido, telefono, fecha, hora, especialidad,cedulaMedico:cedula });
 
 
         const medicoAsig = await Medico.findOne({ cedula: cedula })
 
-        if (!medicoAsig) {
-            return res.status(404).json({ error: 'No se encontró el medico' });
-        }
 
         cita.fecha = moment(fecha, "DD/MM/YYYY").toISOString()
 
         cita.hora = moment(hora, "HH:mm").toISOString()
 
-
+        cita.medico = medicoAsig.nombre + " " + medicoAsig.apellido
         medicoAsig.citasActivas.push({ idCita: Cita, fecha: cita.fecha, hora: cita.hora });
 
         await medicoAsig.save();
@@ -119,50 +124,31 @@ const citasPOST = async (req = request, res = response) => {
     }
 }
 
-const citasPUT = async (req = request, res = response) => {
-
-    try {
-        const { id } = req.params;
-
-
-        // 
-        const { password, google, ...resto } = req.body;
-
-        if (password) {
-            const salt = bcrypt.genSaltSync();
-            resto.password = bcrypt.hashSync(password, salt);
-        }
-
-        const updated = await Usuario.findByIdAndUpdate(id, resto);
-        res.json(
-            {
-                ok: 200,
-                "msg": "Mensaje desde el metodo PUT",
-                updated
-            }
-        );
-    }
-    catch (err) {
-        console.log(err);
-        throw new Error('Error en el metodo PUT');
-    }
-}
 
 
 const citasDELETE = async (req = request, res = response) => {
 
     try {
-        const { id } = req.params;
+        
+        const { id, cedula} = req.body;
 
         const eliminado = await Citas.findOneAndDelete({idCita: id})
 
-        const citaMedico = await Medico.findOneAndDelete()
+        if (!eliminado) {
+            return res.status(404).json({ error: 'No se encontró la cita' });
+          }
+
+        const med = await Medico.updateOne(
+            { cedula: cedula },
+            { $pull: { citasActivas: { idCita:id} } } 
+         )
 
         res.json(
             {
                 ok: 200,
                 "msg": "Mensaje desde el metodo DELETE",
-                eliminado
+                eliminado,
+                med
             }
         );
 
@@ -177,7 +163,7 @@ async function generarIdUnico() {
     const Cita = String(Math.floor(Math.random() * 500) + 1);
 
     try {
-        const resultado = await citas.findOne({ idCita: Cita });
+        const resultado = await Citas.findOne({ idCita: Cita });
         if (resultado) {
             // El número ya existe en la base de datos, se llama a la función de nuevo
             return generarNumeroUnico();
@@ -196,6 +182,5 @@ module.exports = {
     medicoGET,
     medicoGETAll,
     citasPOST,
-    citasPUT,
     citasDELETE
 }

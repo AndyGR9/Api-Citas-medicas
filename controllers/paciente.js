@@ -6,8 +6,11 @@ const pacienteGET = async (req = request, res = response) => {
 
     try {
 
-        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula });
+        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula, estado: true });
 
+        if (!pacienteN) {
+            return res.status(404).json({ error: 'No se encontró el paciente' });
+        }
 
         res.status(200).json(
             {
@@ -30,7 +33,7 @@ const pacienteGETAll = async (req = request, res = response) => {
 
     try {
 
-        const paciente = await Paciente.find();
+        const paciente = await Paciente.find({ estado: true });
 
 
         res.status(200).json(
@@ -57,9 +60,16 @@ const pacientePOST = async (req = request, res = response) => {
 
         const { nombre, apellidos, cedula, peso_presion, edad, altura, enfermedades, tipoSangre, alergias, contactoEmergencia } = req.body
 
+        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula, estado: true });
+
+        if (pacienteN) {
+            return res.status(404).json({ error: 'El paciente ya ha sido registrado' });
+        }
+
         const paciente = new Paciente({ nombre, apellidos, cedula, peso_presion, edad, altura, enfermedades, tipoSangre, alergias, contactoEmergencia });
 
-        const resultado = await Paciente.insertMany(paciente); 
+        const resultado = await Paciente.insertMany(paciente);
+
 
 
         res.json(
@@ -84,27 +94,34 @@ const pacientePUT = async (req = request, res = response) => {
         const { nombre, apellidos, cedula, peso_presion, edad, altura, enfermedades,
             tipoSangre, alergias, contactoEmergencia } = req.body
 
-            const updated = await Paciente.findOneAndUpdate(
-                {
-                     cedula: cedula
+
+        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula, estado: true });
+
+        if (!pacienteN) {
+            return res.status(404).json({ error: 'No se encontró el paciente' });
+        }
+
+
+        const updated = await Paciente.updateOne(
+            {
+                cedula: cedula
+            },
+            {
+                $set: {
+                    nombre: nombre,
+                    apellidos: apellidos,
+                    edad: edad,
+                    altura: altura,
+                    tipoSangre: tipoSangre,
+                    peso_presion: peso_presion,
+                    enfermedades: enfermedades,
+                    alergias: alergias,
+                    contactoEmergencia: contactoEmergencia
                 },
-                {
-                    $set: { 
-                        nombre: nombre, 
-                        apellidos: apellidos,
-                        edad: edad,
-                        altura: altura,
-                        tipoSangre: tipoSangre,
-                        peso_presion: peso_presion,
-                        enfermedades: enfermedades,
-                        alergias: alergias,
-                        contactoEmergencia:contactoEmergencia
-                    },
-                },
-            );
-             
-              
-              
+            },
+        );
+
+
 
         res.json(
             {
@@ -128,17 +145,19 @@ const pacienteDELETE = async (req = request, res = response) => {
 
         let user = "Paciente no existe"
 
-        const validar = await Paciente.findOne({cedula: cedula})
-        console.log(validar.estado)
+        const validar = await Paciente.findOne({ cedula: cedula, estado: true })
 
-        if (validar.estado == true ) {
-            user = await Paciente.findOneAndUpdate({ cedula: cedula }, { $set: { estado: "false" } });
-        } 
+        if (!validar) {
+            return res.status(404).json({ error: 'El paciente no existe o ya a sido eliminado' });
+        }
+
+        user = await Paciente.updateOne({ cedula: cedula }, { $set: { estado: "false" } });
+
 
         res.json(
             {
                 ok: 200,
-                "msg": "Mensaje desde el metodo DELETE", 
+                "msg": "Mensaje desde el metodo DELETE",
                 user
             }
         );
