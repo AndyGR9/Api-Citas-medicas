@@ -2,6 +2,7 @@ const express=require('express');
 require('dotenv').config();
 const conectorMONGO=require('../database/mongo');
 const cors = require('cors')
+const bodyParser = require("body-parser")
 
 
 
@@ -44,6 +45,8 @@ middleWares(){
     this.app.use(express.json());
     this.app.use(express.static('public'))
     this.app.use(cors())
+    this.app.use(bodyParser.urlencoded({extended : true}))
+    this.app.use(bodyParser.json())
 }
 
 MongoDB(){
