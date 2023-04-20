@@ -7,6 +7,7 @@ const router = Router();
 
 const { pacientePOST, pacienteGET, pacientePUT, pacienteDELETE, pacienteGETAll } = require('../controllers/paciente');
 const { validarMedico } = require('../middleware/validarRol');
+const { validarJWT } = require('../middleware/validateJWT');
 
 
 
@@ -30,7 +31,7 @@ router.post('/', [
     check('contactoEmergencia.*.relacionFamiliar', 'La relacion familiar del contacto de emergencia es obligatoria').notEmpty(),
     check('contactoEmergencia.*.telefono', 'El numero de telefono del contacto de emergencia es obligatorio').notEmpty(),
     check('contactoEmergencia.*.direccion', 'La direcion del contacto de emergencia es obligatorio').notEmpty(),
-    validate_fields], validarMedico, pacientePOST);
+    validate_fields],validarJWT, validarMedico, pacientePOST);
 
 
 router.get('/', [
@@ -59,10 +60,10 @@ router.put('/', [
     check('contactoEmergencia.*.relacionFamiliar', 'La relacion familiar del contacto de emergencia es obligatoria').notEmpty(),
     check('contactoEmergencia.*.telefono', 'El numero de telefono del contacto de emergencia es obligatorio').notEmpty(),
     check('contactoEmergencia.*.direccion', 'La direcion del contacto de emergencia es obligatorio').notEmpty(),
-    validate_fields], validarMedico, pacientePUT);
+    validate_fields],validarJWT, validarMedico, pacientePUT);
 
 router.delete('/', [
     check('cedula', 'La cedula es obligatoria').not().isEmpty(),
-    validate_fields], validarMedico, pacienteDELETE);
+    validate_fields],validarJWT, validarMedico, pacienteDELETE);
 
 module.exports = router;

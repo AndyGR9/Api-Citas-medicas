@@ -24,15 +24,15 @@ email:{
 citasActivas:[{
   idCita: {
     type: String,
-    required: true
+    required: false
   },
     fecha: {
       type: Date,
-      required: true
+      required: false
     },
     hora: {
       type: Date,
-      required: true
+      required: false
     }
   }],
 

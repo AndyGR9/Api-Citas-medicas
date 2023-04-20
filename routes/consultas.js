@@ -7,6 +7,7 @@ const router = Router();
 
 const { detallesPOST, diagnosticoPOST, consultaGET, consultaGETAll, examenesPOST } = require('../controllers/consultas');
 const { validarEnfermera, validarMedico } = require('../middleware/validarRol');
+const { validarJWT } = require('../middleware/validateJWT');
 
 
 
@@ -17,7 +18,7 @@ router.post('/detalles', [
     check('detallesPaciente.*.peso', 'El peso  es obligatorio').notEmpty(),
     check('detallesPaciente.*.altura', 'La altura es obligatoria').notEmpty(),
     check('detallesPaciente.*.sintomas', 'Los sintomas son obligatorios').notEmpty(),
-    validate_fields], validarEnfermera, detallesPOST);
+    validate_fields],validarJWT, validarEnfermera, detallesPOST);
 
 router.post('/diagnostico', [
     check('cedula', 'La cedula es obligatoria').notEmpty(),
@@ -27,7 +28,7 @@ router.post('/diagnostico', [
     check('diagnostico.*.medicamentos', 'Los medicamentos asignados al paciente son obligatorios').notEmpty(),
     check('examenes', 'Los examenes son obligatorios').isArray(),
     check('examenes.*.tipo', 'El tipo de examen asignado es obligatorio').notEmpty(),
-    validate_fields], validarMedico, diagnosticoPOST);
+    validate_fields],validarJWT, validarMedico, diagnosticoPOST);
 
 router.post('/examenes', [
     check('cedula', 'La cedula es obligatoria').notEmpty(),
@@ -35,7 +36,7 @@ router.post('/examenes', [
     check('examenes', 'Los examenes son obligatorios').isArray(),
     check('examenes.*.tipo', 'El tipo de examen asignado es obligatorio').notEmpty(),
     check('examenes.*.caracteristica', 'El la razón del examen es obligatoria').notEmpty(),
-    validate_fields], validarMedico, examenesPOST);
+    validate_fields],validarJWT, validarMedico, examenesPOST);
 
 router.get('/', [
     check('cedula', 'La cedula es obligatoria').not().isEmpty(),

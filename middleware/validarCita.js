@@ -16,7 +16,7 @@ const validarCita = async (req = request, res = response, next) => {
 
   const fechaCita = moment(req.body.fecha, "DD/MM/YYYY");
   const horaCita = moment(hora, 'HH:mm')
-  const medicoAsig = await Medico.findOne({ cedula: req.body.cedula })
+  const medicoAsig = await Medico.findOne({ cedula: req.body.cedulaMedico })
 
   //Validar que el medico exista
   if (!medicoAsig) {

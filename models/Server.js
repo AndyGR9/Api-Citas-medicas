@@ -13,6 +13,7 @@ constructor(){
    this.cita='/api/citas'
    this.paciente='/api/paciente'
    this.consultas='/api/consultas'
+   this.medico='/api/medico'
 
    //invocamos nuestros metodos
    this.middleWares();
@@ -36,6 +37,7 @@ this.app.use(this.auth,require('../routes/auth'));
 this.app.use(this.cita,require('../routes/citas'));
 this.app.use(this.paciente,require('../routes/pacientes'));
 this.app.use(this.consultas,require('../routes/consultas'));
+this.app.use(this.medico,require('../routes/medico'));
 }
 
 middleWares(){

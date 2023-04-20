@@ -12,8 +12,7 @@ router.get('/',loginGET);
 router.post('/login',[
 check('email','Este email no es valido').isEmail(),
 check('password','El nombre es obligatorio').not().isEmpty(),
-validate_fields],
-login); 
+validate_fields],login); 
 
 router.post('/register',[
     check('email','Este email no es valido').isEmail(),
