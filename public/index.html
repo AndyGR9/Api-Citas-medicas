@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google</title>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+
+
+
+  <div id="g_id_onload"
+  data-client_id="180101263490-2kanri0tm3kp7j38f7an4np7i68c6nod.apps.googleusercontent.com"
+  data-callback="handleCredentialResponse"
+  data-auto_prompt="false">
+</div>
+
+
+<div class="g_id_signin"
+  data-type="standard"
+  data-size="large"
+  data-theme="outline"
+  data-text="sign_in_with"
+  data-shape="rectangular"
+  data-logo_alignment="left">
+</div>
+
+
+<script>
+  function handleCredentialResponse(response) {
+    const body={id_token:response.credential};
+    
+               //fetch url, opciones
+    const url='http://localhost:8082/api/auth/google'; 
+    fetch(url,{
+      method:'POST',
+      headers:{'Content-type':'application/json'},
+      body:JSON.stringify(body)
+    })
+    .then(res=>res.json())
+    .then(res=>console.log(res))
+    .catch(console.warn)
+
+//Forma de hacer la peticion con axios
+//Ya registre la libreria en el HTML mediante CDN
+/*          axios.post(url, body)
+           .then((res)=>{console.log(res.data)})
+           .catch((err)=>{console.log(err)}); */
+
+
+  }
+</script>
+
+
+<!-- <script>
+  function handlecredentialresponse(response) {
+     // decodeJwtResponse() is a custom function defined by you
+     // to decode the credential response.
+     console.log(response.credential);
+     const body={id_token:response.credential}
+
+     const url='http://localhost:8080/api/auth/google';
+     fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    })
+     .then(resp=>resp.json())
+     .then(resp=>resp)
+     .catch(console.warn);
+
+  }
+</script> -->
+
+</body>
+</html>

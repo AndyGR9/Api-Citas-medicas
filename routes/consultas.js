@@ -28,6 +28,7 @@ router.post('/diagnostico', [
     check('diagnostico.*.medicamentos', 'Los medicamentos asignados al paciente son obligatorios').notEmpty(),
     check('examenes', 'Los examenes son obligatorios').isArray(),
     check('examenes.*.tipo', 'El tipo de examen asignado es obligatorio').notEmpty(),
+    check('examenes.*.caracteristica', 'No se pueden agregar estos datos en la seccion actual').isEmpty(),
     validate_fields],validarJWT, validarMedico, diagnosticoPOST);
 
 router.post('/examenes', [

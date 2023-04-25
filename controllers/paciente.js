@@ -1,12 +1,13 @@
 const { request, response } = require('express');
 const Paciente = require('../models/paciente');
+const Citas = require('../models/citas');
 
 
 const pacienteGET = async (req = request, res = response) => {
 
     try {
 
-        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula, estado: true });
+        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula.replace(/\s/g, ''), estado: true });
 
         if (!pacienteN) {
             return res.status(404).json({ error: 'No se encontró el paciente' });
@@ -60,13 +61,13 @@ const pacientePOST = async (req = request, res = response) => {
 
         const { nombre, apellidos, cedula, peso_presion, edad, altura, enfermedades, tipoSangre, alergias, contactoEmergencia } = req.body
 
-        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula, estado: true });
+        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula.replace(/\s/g, ''), estado: true });
 
         if (pacienteN) {
             return res.status(404).json({ error: 'El paciente ya ha sido registrado' });
         }
 
-        const paciente = new Paciente({ nombre, apellidos, cedula, peso_presion, edad, altura, enfermedades, tipoSangre, alergias, contactoEmergencia });
+        const paciente = new Paciente({ nombre, apellidos, cedula: cedula.replace(/\s/g, ''), peso_presion, edad, altura, enfermedades, tipoSangre, alergias, contactoEmergencia });
 
         const resultado = await Paciente.insertMany(paciente);
 
@@ -95,7 +96,7 @@ const pacientePUT = async (req = request, res = response) => {
             tipoSangre, alergias, contactoEmergencia } = req.body
 
 
-        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula, estado: true });
+        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula.replace(/\s/g, ''), estado: true });
 
         if (!pacienteN) {
             return res.status(404).json({ error: 'No se encontró el paciente' });
@@ -104,7 +105,7 @@ const pacientePUT = async (req = request, res = response) => {
 
         const updated = await Paciente.updateOne(
             {
-                cedula: cedula
+                cedula: cedula.replace(/\s/g, '')
             },
             {
                 $set: {
@@ -145,13 +146,19 @@ const pacienteDELETE = async (req = request, res = response) => {
 
         let user = "Paciente no existe"
 
-        const validar = await Paciente.findOne({ cedula: cedula, estado: true })
+        const validar = await Paciente.findOne({ cedula: cedula.replace(/\s/g, ''), estado: true })
 
         if (!validar) {
             return res.status(404).json({ error: 'El paciente no existe o ya a sido eliminado' });
         }
 
-        user = await Paciente.updateOne({ cedula: cedula }, { $set: { estado: "false" } });
+        const cita = await Citas.findOne({cedulaPaciente:cedula.replace(/\s/g, '')})
+
+        if (cita) {
+            return res.status(404).json({ error: 'No se puede eliminar a el paciente porque posee citas activas' });
+        }
+
+        user = await Paciente.findOneAndDelete({ cedula: cedula.replace(/\s/g, '') }); 
 
 
         res.json(

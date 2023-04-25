@@ -2,6 +2,7 @@ const { request, response } = require("express")
 const logins = require('../models/login');
 const bcrypt = require('bcryptjs');
 const GenerarJWT = require("../helpers/generarWebToken");
+const { googleVerify } = require('../helpers/googleVerify');
 
 const loginGET = async (req = request, res = response) => {
 
@@ -81,8 +82,6 @@ const login = async (req = request, resp = response) => {
         return resp.status(400).json({
             ok: false,
             msg: "Email no existe en la base de datos",
-            email,
-            password
         });
     }
 
@@ -115,13 +114,86 @@ const login = async (req = request, resp = response) => {
     
 }
 
+const googleSingIn=async(req=request, res=response )=>{
+
+    const {id_token}=req.body;
+      
+    try{
+       //Capturamos el usuario que esta solicitango logueo
+       const googleUser= await googleVerify(id_token);
+   
+       //Tercer paso desestructurar y grabar en nuestra aplicacion 
+       //el usuario que se logueo en google
+       const  {name, email, picture}=googleUser;
+      
+       //Cuarto paso Generar la referencia para saber si el usuario ya existe
+   
+       let usuario= await logins.findOne({email});
+   
+       if(!usuario){
+       const data={
+           name:name,
+           email: email,
+           //El hash se le delega a google 
+           password:'p',
+           google:true,
+           rol:'Public'}
+       usuario= new logins(data);
+       await usuario.save();
+       }
+   
+   
+     //Generamos el JsonWebToken
+   const token= await GenerarJWT(usuario.id);
+     
+     
+       //Configuramos la salida 
+       res.status(200).json({
+         msg:'Todo bien desde googleSignIn',
+        /* 
+        Esto va primero y tras hacer la validacion lo borramos para 
+        solo devolver el usuario y el token 
+         id_token,
+         googleUser
+        */
+       usuario,
+       token
+   
+       });
+  
+       console.log('Creacion correcta del usuario en google')
+   
+      }
+     catch(err){
+       console.log(err)
+     res.status(400).json({
+       ok:false,
+       msg:'El token no se pudo verificar. Intentar con otro'
+     });
+     }
+      
+   
+   
+   }
+    
+
 const rolPUT=async(req=request, res=response)=>{
 
     try {
     const {email,rol}=req.body;
 
-    const updated= await logins.updateOne({email:email}, {$set: {rol:rol}});
+    const login = await logins.findOne({ email });
 
+    if (!login) {
+        return res.status(400).json({
+            ok: false,
+            msg: "Email no existe en la base de datos"
+        });
+    }
+
+
+    const updated= await logins.updateOne({email:email}, {$set: {rol:rol}});
+ 
         res.json(
             {
                 ok:true,
@@ -137,4 +209,4 @@ const rolPUT=async(req=request, res=response)=>{
 }
 
 
-module.exports = {loginGET, login, register, rolPUT }  
+module.exports = {loginGET, login, register, rolPUT, googleSingIn }  

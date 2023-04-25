@@ -18,6 +18,11 @@ const SchemaCitas = new Schema({
         required: [true, 'El campo apellido es requerido']
     },
 
+    cedulaPaciente: {
+        type: String,
+        required: [true, 'El campo cedula del paciente es requerido']
+    },
+
     telefono: {
         type: String,
         required: [true, 'El campo telefono es requerido']
@@ -44,7 +49,7 @@ const SchemaCitas = new Schema({
     },
     cedulaMedico: {
         type: String,
-        required: [true, 'El campo medico es requerido']
+        required: [true, 'El campo cedula del medico es requerido']
     }
 
 });
