@@ -8,8 +8,9 @@ const router = Router();
 
 const { citasPOST, citasGET, citasDELETE, citasGETAll
 } = require('../controllers/citas');
-const { validarNOMedico } = require('../middleware/validarRol'); 
+const { validarNOMedico } = require('../middleware/validarRol');
 const { validarJWT } = require('../middleware/validateJWT');
+const { validarParametroNoVacio } = require('../middleware/validarParam');
 
 
 
@@ -22,12 +23,10 @@ router.post('/', [
     check('cedulaMedico', 'La cedula es obligatoria').not().isEmpty(),
     validate_fields], validarJWT, validarNOMedico, validarCita, citasPOST);
 
-router.get('/', [
-    check('idCita', 'El id de la cita es obligarorio').not().isEmpty(),
-    validate_fields], validarJWT, validarNOMedico, citasGET);
-
-
 router.get('/listaCitas', validarJWT, validarNOMedico, citasGETAll);
+
+router.get('/:idCita', validarParametroNoVacio, validarJWT, validarNOMedico, citasGET);
+
 
 router.delete('/', [
     check('id', 'El id de la cita es obligatorio').not().isEmpty(),

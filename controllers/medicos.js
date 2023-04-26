@@ -31,7 +31,7 @@ const medicoGET = async (req = request, res = response) => {
 
     try {
 
-        let { cedula, especialidad } = req.body
+        let { cedula, especialidad } = req.params
 
         if (!cedula && !especialidad) {
             return res.status(404).json({ error: 'Debe ingresar datos para realizar la busqueda' });

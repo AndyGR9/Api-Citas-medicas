@@ -9,6 +9,7 @@ const { medicoPOST, medicoGET, medicoGETAll, medicoDELETE
 } = require('../controllers/medicos');
 const { validarAdmin } = require('../middleware/validarRol');
 const { validarJWT } = require('../middleware/validateJWT');
+const { validarParametroNoVacio } = require('../middleware/validarParam');
 
 
 
@@ -23,7 +24,7 @@ router.post('/', [
 
 router.get('/Listamedico', validarAdmin, medicoGETAll);
 
-router.get('/', validarJWT, validarAdmin, medicoGET);
+router.get('/:cedula/:especialidad',validarParametroNoVacio, validarJWT, validarAdmin, medicoGET);
 
 router.delete('/', [
     check('cedula', 'La cedula es obligatoria').not().isEmpty(),

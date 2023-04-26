@@ -9,7 +9,7 @@ const citasGET = async (req = request, res = response) => {
 
     try {
 
-        const { idCita } = req.body
+        const { idCita } = req.params
 
         const citasL = await Citas.findOne({ idCita: idCita.replace(/\s/g, '')  });
 

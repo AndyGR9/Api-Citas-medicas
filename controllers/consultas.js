@@ -7,9 +7,12 @@ const consultaGET = async (req = request, res = response) => {
 
     try {
 
-        const consultaN = await Consulta.find({ cedula: req.body.cedula.replace(/\s/g, '') });
+        const { cedula } = req.params
 
-        if (!consultaN) {
+        const consultaN = await Consulta.find({ cedula: cedula.replace(/\s/g, '') });
+
+
+        if (consultaN.length<=0) {
             return res.status(404).json({ error: 'La consulta solicitada no existe' });
         }
 

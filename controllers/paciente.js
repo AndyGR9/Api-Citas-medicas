@@ -7,7 +7,9 @@ const pacienteGET = async (req = request, res = response) => {
 
     try {
 
-        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula.replace(/\s/g, ''), estado: true });
+        const { cedula } = req.params
+
+        const pacienteN = await Paciente.findOne({ cedula: cedula.replace(/\s/g, '')});
 
         if (!pacienteN) {
             return res.status(404).json({ error: 'No se encontró el paciente' });
@@ -34,7 +36,7 @@ const pacienteGETAll = async (req = request, res = response) => {
 
     try {
 
-        const paciente = await Paciente.find({ estado: true });
+        const paciente = await Paciente.find();
 
 
         res.status(200).json(
@@ -61,7 +63,7 @@ const pacientePOST = async (req = request, res = response) => {
 
         const { nombre, apellidos, cedula, peso_presion, edad, altura, enfermedades, tipoSangre, alergias, contactoEmergencia } = req.body
 
-        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula.replace(/\s/g, ''), estado: true });
+        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula.replace(/\s/g, '')});
 
         if (pacienteN) {
             return res.status(404).json({ error: 'El paciente ya ha sido registrado' });
@@ -96,7 +98,7 @@ const pacientePUT = async (req = request, res = response) => {
             tipoSangre, alergias, contactoEmergencia } = req.body
 
 
-        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula.replace(/\s/g, ''), estado: true });
+        const pacienteN = await Paciente.findOne({ cedula: req.body.cedula.replace(/\s/g, '')});
 
         if (!pacienteN) {
             return res.status(404).json({ error: 'No se encontró el paciente' });
@@ -146,7 +148,7 @@ const pacienteDELETE = async (req = request, res = response) => {
 
         let user = "Paciente no existe"
 
-        const validar = await Paciente.findOne({ cedula: cedula.replace(/\s/g, ''), estado: true })
+        const validar = await Paciente.findOne({ cedula: cedula.replace(/\s/g, '')})
 
         if (!validar) {
             return res.status(404).json({ error: 'El paciente no existe o ya a sido eliminado' });

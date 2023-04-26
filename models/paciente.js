@@ -81,10 +81,6 @@ const SchemaPaciente = new Schema({
         }
     }],
 
-    estado: {
-        type: Boolean,
-        default: true
-    },
 
 });
 

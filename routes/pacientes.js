@@ -8,6 +8,7 @@ const router = Router();
 const { pacientePOST, pacienteGET, pacientePUT, pacienteDELETE, pacienteGETAll } = require('../controllers/paciente');
 const { validarMedico } = require('../middleware/validarRol');
 const { validarJWT } = require('../middleware/validateJWT');
+const { validarParametroNoVacio } = require('../middleware/validarParam');
 
 
 
@@ -34,11 +35,10 @@ router.post('/', [
     validate_fields],validarJWT, validarMedico, pacientePOST);
 
 
-router.get('/', [
-    check('cedula', 'La cedula es obligatoria').not().isEmpty(),
-    validate_fields], pacienteGET);
-
 router.get('/listaPacientes', pacienteGETAll);
+
+router.get('/:cedula',validarParametroNoVacio, pacienteGET);
+
 
 router.put('/', [
     check('nombre', 'El nombre es obligatorio').notEmpty(),
