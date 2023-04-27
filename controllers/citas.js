@@ -65,15 +65,9 @@ const citasPOST = async (req = request, res = response) => {
 
         const Cita = await generarIdUnico();
 
-        const { cedulaPaciente, fecha, hora, telefono, especialidad, cedulaMedico } = req.body
+        const { nombre,apellido, cedulaPaciente, fecha, hora, telefono, especialidad, cedulaMedico } = req.body
 
-        const paciente = await Paciente.findOne({ cedula: cedulaPaciente })
-
-        if (!paciente) {
-            return res.status(404).json({ error: 'El paciente selecionado no existe' });
-        }
-
-        const cita = new Citas({ idCita: Cita, nombre: paciente.nombre, apellido: paciente.apellidos,cedulaPaciente, telefono, fecha, hora, especialidad, cedulaMedico: cedulaMedico });
+        const cita = new Citas({ idCita: Cita, nombre, apellido,cedulaPaciente, telefono, fecha, hora, especialidad, cedulaMedico: cedulaMedico });
 
 
         const medicoAsig = await Medico.findOne({ cedula: cedulaMedico })
@@ -82,7 +76,7 @@ const citasPOST = async (req = request, res = response) => {
             return res.status(404).json({ error: 'La especialidad no coincide con la del médico' });
         }
 
-        cita.especialidad = especialidad.replace(/\s/g, '').toLowerCase()
+        cita.especialidad = especialidad.replace(/\s/g, '').toLowerCase() 
 
         cita.fecha = moment(fecha, "DD/MM/YYYY").toISOString()
 

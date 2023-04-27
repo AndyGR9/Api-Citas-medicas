@@ -15,6 +15,8 @@ const { validarParametroNoVacio } = require('../middleware/validarParam');
 
 
 router.post('/', [
+    check('nombre', 'El nombre es obligatorio').notEmpty(),
+    check('apellido', 'El apellido es obligatorio').notEmpty(),
     check('cedulaPaciente', 'La cedula del paciente es obligatoria').not().isEmpty(),
     check('telefono', 'El telefono es obligatorio').not().isEmpty(),
     check('fecha', 'La fecha es obligatoria').not().isEmpty(),
