@@ -1,6 +1,5 @@
 const { request, response } = require('express');
 const Paciente = require('../models/paciente');
-const Citas = require('../models/citas');
 
 
 const pacienteGET = async (req = request, res = response) => {
@@ -146,22 +145,13 @@ const pacienteDELETE = async (req = request, res = response) => {
     try {
         const { cedula } = req.body;
 
-        let user = "Paciente no existe"
-
         const validar = await Paciente.findOne({ cedula: cedula.replace(/\s/g, '')})
 
         if (!validar) {
             return res.status(404).json({ error: 'El paciente no existe o ya a sido eliminado' });
         }
 
-        const cita = await Citas.findOne({cedulaPaciente:cedula.replace(/\s/g, '')})
-
-        if (cita) {
-            return res.status(404).json({ error: 'No se puede eliminar a el paciente porque posee citas activas' });
-        }
-
-        user = await Paciente.findOneAndDelete({ cedula: cedula.replace(/\s/g, '') }); 
-
+        const user = await Paciente.findOneAndDelete({ cedula: cedula.replace(/\s/g, '') }); 
 
         res.json(
             {
